@@ -15,17 +15,6 @@
  */
 package com.corundumstudio.socketio.namespace;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Queue;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ConcurrentMap;
-
 import com.corundumstudio.socketio.*;
 import com.corundumstudio.socketio.annotation.ScannerEngine;
 import com.corundumstudio.socketio.listener.ConnectListener;
@@ -38,6 +27,14 @@ import com.corundumstudio.socketio.store.pubsub.DispatchMessage;
 import com.corundumstudio.socketio.store.pubsub.JoinLeaveMessage;
 import com.corundumstudio.socketio.store.pubsub.PubSubStore;
 import com.corundumstudio.socketio.transport.NamespaceClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Hub object for all clients in one namespace.
@@ -46,6 +43,8 @@ import com.corundumstudio.socketio.transport.NamespaceClient;
  * @see com.corundumstudio.socketio.transport.NamespaceClient
  */
 public class Namespace implements SocketIONamespace {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     public static final String DEFAULT_NAME = "";
 
@@ -145,12 +144,16 @@ public class Namespace implements SocketIONamespace {
 
     public void onDisconnect(SocketIOClient client) {
         for (DisconnectListener listener : disconnectListeners) {
-            listener.onDisconnect(client);
+            try {
+                listener.onDisconnect(client);
+            } catch (Exception e) {
+                log.error("Can't execute onDisconnect listener", e);
+            }
         }
         allClients.remove(client);
 
         leave(getName(), client.getSessionId());
-        storeFactory.getPubSubStore().publish(PubSubStore.LEAVE, new JoinLeaveMessage(client.getSessionId(), getName()));
+        storeFactory.pubSubStore().publish(PubSubStore.LEAVE, new JoinLeaveMessage(client.getSessionId(), getName()));
     }
 
     @Override
@@ -160,11 +163,15 @@ public class Namespace implements SocketIONamespace {
 
     public void onConnect(SocketIOClient client) {
         for (ConnectListener listener : connectListeners) {
-            listener.onConnect(client);
+            try {
+                listener.onConnect(client);
+            } catch (Exception e) {
+                log.error("Can't execute onConnect listener", e);
+            }
         }
 
         join(getName(), client.getSessionId());
-        storeFactory.getPubSubStore().publish(PubSubStore.JOIN, new JoinLeaveMessage(client.getSessionId(), getName()));
+        storeFactory.pubSubStore().publish(PubSubStore.JOIN, new JoinLeaveMessage(client.getSessionId(), getName()));
     }
 
     @Override
@@ -227,14 +234,14 @@ public class Namespace implements SocketIONamespace {
         room += getName() + "/" + room;
 
         join(room, sessionId);
-        storeFactory.getPubSubStore().publish(PubSubStore.JOIN, new JoinLeaveMessage(sessionId, room));
+        storeFactory.pubSubStore().publish(PubSubStore.JOIN, new JoinLeaveMessage(sessionId, room));
     }
 
     public void doDispatch(String room, Packet packet) {
         if (room != null && !room.isEmpty()) {
             room += getName() + "/" + room;
         }
-        storeFactory.getPubSubStore().publish(PubSubStore.DISPATCH, new DispatchMessage(room, packet));
+        storeFactory.pubSubStore().publish(PubSubStore.DISPATCH, new DispatchMessage(room, packet));
     }
 
     public void dispatch(String room, Packet packet) {
@@ -266,7 +273,7 @@ public class Namespace implements SocketIONamespace {
         room += getName() + "/" + room;
 
         leave(room, sessionId);
-        storeFactory.getPubSubStore().publish(PubSubStore.LEAVE, new JoinLeaveMessage(sessionId, room));
+        storeFactory.pubSubStore().publish(PubSubStore.LEAVE, new JoinLeaveMessage(sessionId, room));
     }
 
     public void leave(String room, UUID sessionId) {
