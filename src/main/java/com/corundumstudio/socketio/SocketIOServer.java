@@ -78,7 +78,7 @@ public class SocketIOServer implements ClientListeners {
     }
 
     public BroadcastOperations getBroadcastOperations() {
-        return new BroadcastOperations(pipelineFactory.getAllClients(), configCopy.getStoreFactory());
+        return getBroadcastOperations(pipelineFactory.getAllClients());
     }
 
     /**
@@ -90,6 +90,10 @@ public class SocketIOServer implements ClientListeners {
      */
     public BroadcastOperations getRoomOperations(String room) {
         Iterable<SocketIOClient> clients = namespacesHub.getRoomClients(room);
+        return new BroadcastOperations(clients, configCopy.getStoreFactory());
+    }
+
+    public BroadcastOperations getBroadcastOperations(Iterable<SocketIOClient> clients) {
         return new BroadcastOperations(clients, configCopy.getStoreFactory());
     }
 

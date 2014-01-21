@@ -153,7 +153,7 @@ public class Namespace implements SocketIONamespace {
         allClients.remove(client);
 
         leave(getName(), client.getSessionId());
-        storeFactory.pubSubStore().publish(PubSubStore.LEAVE, new JoinLeaveMessage(client.getSessionId(), getName()));
+        storeFactory.getPubSubStore().publish(PubSubStore.LEAVE, new JoinLeaveMessage(client.getSessionId(), getName()));
     }
 
     @Override
@@ -171,7 +171,7 @@ public class Namespace implements SocketIONamespace {
         }
 
         join(getName(), client.getSessionId());
-        storeFactory.pubSubStore().publish(PubSubStore.JOIN, new JoinLeaveMessage(client.getSessionId(), getName()));
+        storeFactory.getPubSubStore().publish(PubSubStore.JOIN, new JoinLeaveMessage(client.getSessionId(), getName()));
     }
 
     @Override
@@ -234,14 +234,14 @@ public class Namespace implements SocketIONamespace {
         room += getName() + "/" + room;
 
         join(room, sessionId);
-        storeFactory.pubSubStore().publish(PubSubStore.JOIN, new JoinLeaveMessage(sessionId, room));
+        storeFactory.getPubSubStore().publish(PubSubStore.JOIN, new JoinLeaveMessage(sessionId, room));
     }
 
     public void doDispatch(String room, Packet packet) {
         if (room != null && !room.isEmpty()) {
             room += getName() + "/" + room;
         }
-        storeFactory.pubSubStore().publish(PubSubStore.DISPATCH, new DispatchMessage(room, packet));
+        storeFactory.getPubSubStore().publish(PubSubStore.DISPATCH, new DispatchMessage(room, packet));
     }
 
     public void dispatch(String room, Packet packet) {
@@ -273,7 +273,7 @@ public class Namespace implements SocketIONamespace {
         room += getName() + "/" + room;
 
         leave(room, sessionId);
-        storeFactory.pubSubStore().publish(PubSubStore.LEAVE, new JoinLeaveMessage(sessionId, room));
+        storeFactory.getPubSubStore().publish(PubSubStore.LEAVE, new JoinLeaveMessage(sessionId, room));
     }
 
     public void leave(String room, UUID sessionId) {

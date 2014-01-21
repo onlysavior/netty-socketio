@@ -35,14 +35,15 @@ public abstract class BaseStoreFactory implements StoreFactory {
     }
 
     public void init(final NamespacesHub namespacesHub, final AuthorizeHandler authorizeHandler, JsonSupport jsonSupport) {
-        pubSubStore().subscribe(PubSubStore.DISCONNECT, new PubSubListener<DisconnectMessage>() {
+        getPubSubStore().subscribe(PubSubStore.DISCONNECT, new PubSubListener<DisconnectMessage>() {
             @Override
             public void onMessage(DisconnectMessage msg) {
+                authorizeHandler.disconnect(msg.getSessionId());
                 log.debug("{} sessionId: {}", PubSubStore.DISCONNECT, msg.getSessionId());
             }
         }, DisconnectMessage.class);
 
-        pubSubStore().subscribe(PubSubStore.CONNECT, new PubSubListener<ConnectMessage>() {
+        getPubSubStore().subscribe(PubSubStore.CONNECT, new PubSubListener<ConnectMessage>() {
             @Override
             public void onMessage(ConnectMessage msg) {
                 authorizeHandler.connect(msg.getSessionId());
@@ -50,7 +51,15 @@ public abstract class BaseStoreFactory implements StoreFactory {
             }
         }, ConnectMessage.class);
 
-        pubSubStore().subscribe(PubSubStore.DISPATCH, new PubSubListener<DispatchMessage>() {
+        getPubSubStore().subscribe(PubSubStore.HANDSHAKE, new PubSubListener<HandshakeMessage>() {
+            @Override
+            public void onMessage(HandshakeMessage msg) {
+                authorizeHandler.handshake(msg.getSessionId(), msg.getData());
+                log.debug("{} sessionId: {}", PubSubStore.HANDSHAKE, msg.getSessionId());
+            }
+        }, HandshakeMessage.class);
+
+        getPubSubStore().subscribe(PubSubStore.DISPATCH, new PubSubListener<DispatchMessage>() {
             @Override
             public void onMessage(DispatchMessage msg) {
                 String name = msg.getRoom();
@@ -61,7 +70,7 @@ public abstract class BaseStoreFactory implements StoreFactory {
             }
         }, DispatchMessage.class);
 
-        pubSubStore().subscribe(PubSubStore.JOIN, new PubSubListener<JoinLeaveMessage>() {
+        getPubSubStore().subscribe(PubSubStore.JOIN, new PubSubListener<JoinLeaveMessage>() {
             @Override
             public void onMessage(JoinLeaveMessage msg) {
                 String name = msg.getRoom();
@@ -72,7 +81,7 @@ public abstract class BaseStoreFactory implements StoreFactory {
             }
         }, JoinLeaveMessage.class);
 
-        pubSubStore().subscribe(PubSubStore.LEAVE, new PubSubListener<JoinLeaveMessage>() {
+        getPubSubStore().subscribe(PubSubStore.LEAVE, new PubSubListener<JoinLeaveMessage>() {
             @Override
             public void onMessage(JoinLeaveMessage msg) {
                 String name = msg.getRoom();
@@ -85,7 +94,7 @@ public abstract class BaseStoreFactory implements StoreFactory {
     }
 
     @Override
-    public abstract PubSubStore pubSubStore();
+    public abstract PubSubStore getPubSubStore();
 
     @Override
     public void onDisconnect(MainBaseClient client) {

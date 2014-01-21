@@ -19,9 +19,11 @@ package com.corundumstudio.socketio.store.pubsub;
 public interface PubSubStore {
 
     // TODO refactor to enum
+    String DISCONNECT = "disconnect";
+
     String CONNECT = "connect";
 
-    String DISCONNECT = "disconnect";
+    String HANDSHAKE = "handshake";
 
     String JOIN = "join";
 

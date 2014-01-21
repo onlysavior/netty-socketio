@@ -13,34 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.corundumstudio.socketio.store;
+package com.corundumstudio.socketio.store.pubsub;
 
 import java.util.UUID;
 
-import com.corundumstudio.socketio.store.pubsub.BaseStoreFactory;
-import com.corundumstudio.socketio.store.pubsub.PubSubStore;
+import com.corundumstudio.socketio.HandshakeData;
 
-public class MemoryStoreFactory extends BaseStoreFactory {
+public class HandshakeMessage extends PubSubMessage {
 
-    private final MemoryPubSubStore pubSubMemoryStore = new MemoryPubSubStore();
+    private static final long serialVersionUID = 5767127795325210150L;
 
-    @Override
-    public Store create(UUID sessionId) {
-        return new MemoryStore();
+    private UUID sessionId;
+    private HandshakeData data;
+
+    public HandshakeMessage() {
     }
 
-    @Override
-    public PubSubStore getPubSubStore() {
-        return pubSubMemoryStore;
+    public HandshakeMessage(UUID sessionId, HandshakeData data) {
+        super();
+        this.sessionId = sessionId;
+        this.data = data;
     }
 
-    @Override
-    public void shutdown() {
+    public UUID getSessionId() {
+        return sessionId;
     }
 
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + " (local session store only)";
+    public HandshakeData getData() {
+        return data;
     }
 
 }
