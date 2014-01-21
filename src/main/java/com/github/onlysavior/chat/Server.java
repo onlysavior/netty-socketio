@@ -1,11 +1,11 @@
 package com.github.onlysavior.chat;
 
-import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketIOClient;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.corundumstudio.socketio.listener.DataListener;
 import com.github.onlysavior.chat.dataobject.ChatObject;
+import com.github.onlysavior.chat.dataobject.SyncKey;
+import com.github.onlysavior.chat.linstener.ChatDataLinstener;
+import com.github.onlysavior.chat.linstener.ConnectDataLinstener;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,12 +21,8 @@ public class Server {
         config.setPort(9092);
 
         final SocketIOServer server = new SocketIOServer(config);
-        server.addEventListener("chatevent", ChatObject.class, new DataListener<ChatObject>() {
-            @Override
-            public void onData(SocketIOClient client, ChatObject data, AckRequest ackRequest) {
-                server.getBroadcastOperations().sendEvent("chatevent", data);
-            }
-        });
+        server.addEventListener("chatevent", ChatObject.class, new ChatDataLinstener(server));
+        server.addEventListener("connectevent", SyncKey.class, new ConnectDataLinstener(server));
 
         server.start();
 

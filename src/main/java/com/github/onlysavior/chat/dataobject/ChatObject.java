@@ -9,20 +9,18 @@ package com.github.onlysavior.chat.dataobject;
  */
 public class ChatObject {
     private String userName;
+    private String fromUserId;
+    private String toUserId;
+    private String toUserName;
     private String message;
 
     public ChatObject() {
     }
 
-    public ChatObject(String userName, String message) {
-        super();
-        this.userName = userName;
-        this.message = message;
-    }
-
     public String getUserName() {
         return userName;
     }
+
     public void setUserName(String userName) {
         this.userName = userName;
     }
@@ -30,7 +28,32 @@ public class ChatObject {
     public String getMessage() {
         return message;
     }
+
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getFromUserId() {
+        return fromUserId;
+    }
+
+    public void setFromUserId(String fromUserId) {
+        this.fromUserId = fromUserId;
+    }
+
+    public String getToUserId() {
+        return toUserId;
+    }
+
+    public void setToUserId(String toUserId) {
+        this.toUserId = toUserId;
+    }
+
+    public String getToUserName() {
+        return toUserName;
+    }
+
+    public void setToUserName(String toUserName) {
+        this.toUserName = toUserName;
     }
 }

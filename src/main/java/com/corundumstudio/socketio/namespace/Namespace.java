@@ -26,10 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
-import com.corundumstudio.socketio.AckRequest;
-import com.corundumstudio.socketio.BroadcastOperations;
-import com.corundumstudio.socketio.SocketIOClient;
-import com.corundumstudio.socketio.SocketIONamespace;
+import com.corundumstudio.socketio.*;
 import com.corundumstudio.socketio.annotation.ScannerEngine;
 import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
@@ -182,6 +179,11 @@ public class Namespace implements SocketIONamespace {
     @Override
     public BroadcastOperations getBroadcastOperations() {
         return new BroadcastOperations(allClients.values(), storeFactory);
+    }
+
+    @Override
+    public SinglecastOperations getSinglecastOperations() {
+        return new SinglecastOperations(allClients.values(), storeFactory);
     }
 
     @Override

@@ -64,6 +64,10 @@ public class SocketIOServer implements ClientListeners {
         this.pipelineFactory = pipelineFactory;
     }
 
+    public SocketIOChannelInitializer getPipelineFactory() {
+        return pipelineFactory;
+    }
+
     /**
      * Get all clients
      *

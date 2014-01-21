@@ -33,7 +33,7 @@ import com.corundumstudio.socketio.store.pubsub.PubSubStore;
  * Fully thread-safe.
  *
  */
-public class BroadcastOperations implements ClientOperations {
+public class BroadcastOperations extends ClientOperationsAdapter {
 
     private final Iterable<SocketIOClient> clients;
     private final Set<String> namespaceRooms = new HashSet<String>();

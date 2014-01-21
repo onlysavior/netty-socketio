@@ -67,6 +67,21 @@ public class NamespaceClient implements SocketIOClient {
     }
 
     @Override
+    public void sendSingleMessage(String message, UUID toUser) {
+        //noop
+    }
+
+    @Override
+    public void send(Packet packet, UUID toUser) {
+        //noop
+    }
+
+    @Override
+    public void sendJsonObject(Object object, UUID toUser) {
+        //noop
+    }
+
+    @Override
     public void sendEvent(String name, Object data, AckCallback<?> ackCallback) {
         Packet packet = new Packet(PacketType.EVENT);
         packet.setName(name);

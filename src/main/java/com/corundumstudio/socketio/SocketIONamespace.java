@@ -25,4 +25,6 @@ public interface SocketIONamespace extends ClientListeners {
 
     BroadcastOperations getBroadcastOperations();
 
+    SinglecastOperations getSinglecastOperations();
+
 }

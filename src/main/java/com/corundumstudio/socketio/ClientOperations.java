@@ -17,6 +17,8 @@ package com.corundumstudio.socketio;
 
 import com.corundumstudio.socketio.parser.Packet;
 
+import java.util.UUID;
+
 /**
  * Available client operations
  *
@@ -58,4 +60,9 @@ public interface ClientOperations {
      */
     void sendEvent(String name, Object data);
 
+    void sendSingleMessage(String message, UUID toUser);
+
+    void send(Packet packet, UUID toUser);
+
+    void sendJsonObject(Object object, UUID toUser);
 }
