@@ -25,6 +25,6 @@ public class ChatDataLinstener implements DataListener<ChatObject> {
         String recevier = data.getToUserId();
         UUID recevierSession = UserId2SessionMapper.INSTANCE.get(recevier);
         SocketIONamespace ns = client.getNamespace();
-        ns.getSinglecastOperations().sendSingleMessage(data.getMessage(), recevierSession);
+        ns.getSinglecastOperations().sendJsonObject(data, recevierSession);
     }
 }
