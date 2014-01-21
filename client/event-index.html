@@ -49,8 +49,17 @@
 		
 		function sendMessage() {
                         var message = $('#msg').val();
+						var recId = 2
                         $('#msg').val('');
-                        socket.emit('chatevent', {userName: userName, message: message});
+                        socket.emit('chatevent', {userName: userName, message: message, fromUserId:userName, toUserId:recId,toUserName:"aaa"});
+		}
+		
+		function sendUserId() {
+						socket.emit('connectevent',{userId:1, syncKey:"bbb"});
+		}
+		
+		function sendUserId2() {
+						socket.emit('connectevent',{userId:2, syncKey:"bbb"});
 		}
 		
 		function output(message) {
@@ -73,6 +82,9 @@
 
         <form class="well form-inline" onsubmit="return false;">
            <input id="msg" class="input-xlarge" type="text" placeholder="Type something..."/>
+		   <input id="recId" class="input-xlarge" type="text" placeholder="send to..." />
+		   <button type="button" onClick="sendUserId()" class="btn">Send UserId1</button>
+		   <button type="button" onClick="sendUserId2()" class="btn">Send UserId2</button>
            <button type="button" onClick="sendMessage()" class="btn">Send</button>
            <button type="button" onClick="sendDisconnect()" class="btn">Disconnect</button>
         </form>
