@@ -30,7 +30,7 @@ public class Configuration {
     private String jsonTypeFieldName = "@class";
     private String context = "/socket.io";
 
-    private String transports = join(new Transport[] {Transport.WEBSOCKET, Transport.FLASHSOCKET, Transport.XHRPOLLING});
+    private String transports = join(new Transport[]{Transport.WEBSOCKET, Transport.FLASHSOCKET, Transport.XHRPOLLING});
 
     private int bossThreads = 0; // 0 = current_processors_amount * 2
     private int workerThreads = 0; // 0 = current_processors_amount * 2
@@ -55,7 +55,13 @@ public class Configuration {
 
     private boolean preferDirectBuffer = true;
 
-    private StoreFactory storeFactory = new MemoryStoreFactory();
+    private boolean useMemoryStoreFactory = true;
+
+    private String redisHost = "127.0.0.1";
+
+    private int redisPort = 6379;
+
+    private StoreFactory storeFactory;
 
     private JsonSupport jsonSupport = new JacksonJsonSupport(this);
 
@@ -67,7 +73,7 @@ public class Configuration {
     /**
      * Defend from further modifications by cloning
      *
-     * @param configuration - Configuration object to clone
+     * @param conf - Configuration object to clone
      */
     Configuration(Configuration conf) {
         setBossThreads(conf.getBossThreads());
@@ -96,7 +102,6 @@ public class Configuration {
         setPackagePrefix(conf.getPackagePrefix());
 
         setPreferDirectBuffer(conf.isPreferDirectBuffer());
-        setStoreFactory(conf.getStoreFactory());
         setAuthorizationListener(conf.getAuthorizationListener());
     }
 
@@ -106,13 +111,14 @@ public class Configuration {
             result.append(transport.getValue());
             result.append(",");
         }
-        result.setLength(result.length()-1);
+        result.setLength(result.length() - 1);
         return result.toString();
     }
 
     public String getJsonTypeFieldName() {
         return jsonTypeFieldName;
     }
+
     public void setJsonTypeFieldName(String jsonTypeFieldName) {
         this.jsonTypeFieldName = jsonTypeFieldName;
     }
@@ -126,7 +132,6 @@ public class Configuration {
      * JSON serialization/deserialization
      *
      * @param jsonSupport
-     *
      * @see JsonSupport
      */
     public void setJsonSupport(JsonSupport jsonSupport) {
@@ -150,6 +155,7 @@ public class Configuration {
     public int getPort() {
         return port;
     }
+
     public void setPort(int port) {
         this.port = port;
     }
@@ -157,6 +163,7 @@ public class Configuration {
     public int getBossThreads() {
         return bossThreads;
     }
+
     public void setBossThreads(int bossThreads) {
         this.bossThreads = bossThreads;
     }
@@ -164,6 +171,7 @@ public class Configuration {
     public int getWorkerThreads() {
         return workerThreads;
     }
+
     public void setWorkerThreads(int workerThreads) {
         this.workerThreads = workerThreads;
     }
@@ -171,12 +179,12 @@ public class Configuration {
     /**
      * Heartbeat interval
      *
-     * @param value
-     *            - time in seconds
+     * @param heartbeatIntervalSecs - time in seconds
      */
     public void setHeartbeatInterval(int heartbeatIntervalSecs) {
         this.heartbeatInterval = heartbeatIntervalSecs;
     }
+
     public int getHeartbeatInterval() {
         return heartbeatInterval;
     }
@@ -185,15 +193,16 @@ public class Configuration {
      * Heartbeat timeout
      * Use <code>0</code> to disable it
      *
-     * @param value
-     *            - time in seconds
+     * @param heartbeatTimeoutSecs - time in seconds
      */
     public void setHeartbeatTimeout(int heartbeatTimeoutSecs) {
         this.heartbeatTimeout = heartbeatTimeoutSecs;
     }
+
     public int getHeartbeatTimeout() {
         return heartbeatTimeout;
     }
+
     public boolean isHeartbeatsEnabled() {
         return heartbeatTimeout > 0;
     }
@@ -201,12 +210,12 @@ public class Configuration {
     /**
      * Heartbeat thread pool size
      *
-     * @param value
-     *            - threads amount
+     * @param heartbeatThreadPoolSize - threads amount
      */
     public void setHeartbeatThreadPoolSize(int heartbeatThreadPoolSize) {
         this.heartbeatThreadPoolSize = heartbeatThreadPoolSize;
     }
+
     public int getHeartbeatThreadPoolSize() {
         return heartbeatThreadPoolSize;
     }
@@ -219,6 +228,7 @@ public class Configuration {
     public void setCloseTimeout(int closeTimeout) {
         this.closeTimeout = closeTimeout;
     }
+
     public int getCloseTimeout() {
         return closeTimeout;
     }
@@ -226,6 +236,7 @@ public class Configuration {
     public String getContext() {
         return context;
     }
+
     public void setContext(String context) {
         this.context = context;
     }
@@ -267,6 +278,7 @@ public class Configuration {
     public void setKeyStorePassword(String keyStorePassword) {
         this.keyStorePassword = keyStorePassword;
     }
+
     public String getKeyStorePassword() {
         return keyStorePassword;
     }
@@ -279,6 +291,7 @@ public class Configuration {
     public void setKeyStore(InputStream keyStore) {
         this.keyStore = keyStore;
     }
+
     public InputStream getKeyStore() {
         return keyStore;
     }
@@ -286,14 +299,14 @@ public class Configuration {
     /**
      * Set maximum http content length limit
      *
-     * @param maxContentLength
-     *        the maximum length of the aggregated http content.
-     *        If the length of the aggregated content exceeds this value,
-     *        a {@link TooLongFrameException} will be raised.
+     * @param value the maximum length of the aggregated http content.
+     *                         If the length of the aggregated content exceeds this value,
+     *                         a {@link TooLongFrameException} will be raised.
      */
     public void setMaxHttpContentLength(int value) {
         this.maxHttpContentLength = value;
     }
+
     public int getMaxHttpContentLength() {
         return maxHttpContentLength;
     }
@@ -303,16 +316,18 @@ public class Configuration {
      *
      * @param transports - list of transports
      */
-    public void setTransports(Transport ... transports) {
+    public void setTransports(Transport... transports) {
         if (transports.length == 0) {
             throw new IllegalArgumentException("Transports list can't be empty");
         }
         this.transports = join(transports);
     }
+
     // used in cloning
     private void setTransports(String transports) {
         this.transports = transports;
     }
+
     public String getTransports() {
         return transports;
     }
@@ -320,17 +335,17 @@ public class Configuration {
     /**
      * Package prefix for sending json-object from client
      * without full class name.
-     *
+     * <p/>
      * With defined package prefix socket.io client
      * just need to define '@class: 'SomeType'' in json object
      * instead of '@class: 'com.full.package.name.SomeType''
      *
      * @param packagePrefix - prefix string
-     *
      */
     public void setPackagePrefix(String packagePrefix) {
         this.packagePrefix = packagePrefix;
     }
+
     public String getPackagePrefix() {
         return packagePrefix;
     }
@@ -339,13 +354,14 @@ public class Configuration {
      * Buffer allocation method used during packet encoding.
      * Default is {@code true}
      *
-     * @param preferDirectBuffer    {@code true} if a direct buffer should be tried to be used as target for
-     *                              the encoded messages. If {@code false} is used it will allocate a heap
-     *                              buffer, which is backed by an byte array.
+     * @param preferDirectBuffer {@code true} if a direct buffer should be tried to be used as target for
+     *                           the encoded messages. If {@code false} is used it will allocate a heap
+     *                           buffer, which is backed by an byte array.
      */
     public void setPreferDirectBuffer(boolean preferDirectBuffer) {
         this.preferDirectBuffer = preferDirectBuffer;
     }
+
     public boolean isPreferDirectBuffer() {
         return preferDirectBuffer;
     }
@@ -354,15 +370,18 @@ public class Configuration {
      * Data store - used to store session data and implements distributed pubsub.
      * Default is {@code MemoryStoreFactory}
      *
-     * @param storeFactory - implements StoreFactory
-     *
+     * @param clientStoreFactory - implements StoreFactory
      * @see com.corundumstudio.socketio.store.MemoryStoreFactory
      * @see com.corundumstudio.socketio.store.RedisStoreFactory
      * @see com.corundumstudio.socketio.store.HazelcastStoreFactory
      */
     public void setStoreFactory(StoreFactory clientStoreFactory) {
         this.storeFactory = clientStoreFactory;
+        if (!(this.storeFactory instanceof MemoryStoreFactory)) {
+            this.useMemoryStoreFactory = false;
+        }
     }
+
     public StoreFactory getStoreFactory() {
         return storeFactory;
     }
@@ -373,15 +392,37 @@ public class Configuration {
      * <b>Accepts</b> all clients by default.
      *
      * @param authorizationListener - authorization listener itself
-     *
      * @see com.corundumstudio.socketio.AuthorizationListener
      */
     public void setAuthorizationListener(AuthorizationListener authorizationListener) {
         this.authorizationListener = authorizationListener;
     }
+
     public AuthorizationListener getAuthorizationListener() {
         return authorizationListener;
     }
 
+    public boolean isUseMemoryStoreFactory() {
+        return useMemoryStoreFactory;
+    }
 
+    public void setUseMemoryStoreFactory(boolean useMemoryStoreFactory) {
+        this.useMemoryStoreFactory = useMemoryStoreFactory;
+    }
+
+    public String getRedisHost() {
+        return redisHost;
+    }
+
+    public void setRedisHost(String redisHost) {
+        this.redisHost = redisHost;
+    }
+
+    public int getRedisPort() {
+        return redisPort;
+    }
+
+    public void setRedisPort(int redisPort) {
+        this.redisPort = redisPort;
+    }
 }

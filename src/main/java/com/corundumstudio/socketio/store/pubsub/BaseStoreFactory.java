@@ -15,6 +15,7 @@
  */
 package com.corundumstudio.socketio.store.pubsub;
 
+import com.github.onlysavior.chat.store.UserId2SessionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,12 @@ public abstract class BaseStoreFactory implements StoreFactory {
 
     private Long nodeId = (long) (Math.random() * 1000000);
 
+    private UserId2SessionMapper userId2SessionMapper;
+
+    public BaseStoreFactory(UserId2SessionMapper userId2SessionMapper) {
+        this.userId2SessionMapper = userId2SessionMapper;
+    }
+
     protected Long getNodeId() {
         return nodeId;
     }
@@ -39,6 +46,7 @@ public abstract class BaseStoreFactory implements StoreFactory {
             @Override
             public void onMessage(DisconnectMessage msg) {
                 authorizeHandler.disconnect(msg.getSessionId());
+                userId2SessionMapper.handleDisconnect(msg.getSessionId());
                 log.debug("{} sessionId: {}", PubSubStore.DISCONNECT, msg.getSessionId());
             }
         }, DisconnectMessage.class);
@@ -88,6 +96,7 @@ public abstract class BaseStoreFactory implements StoreFactory {
 
                 String namespaceName = extractNamespaceName(name);
                 namespacesHub.get(namespaceName).leave(name, msg.getSessionId());
+                userId2SessionMapper.handleDisconnect(msg.getSessionId());
                 log.debug("{} sessionId: {}", PubSubStore.LEAVE, msg.getSessionId());
             }
         }, JoinLeaveMessage.class);

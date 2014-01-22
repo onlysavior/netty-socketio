@@ -21,6 +21,6 @@ public class ConnectDataLinstener implements DataListener<SyncKey> {
     @Override
     public void onData(SocketIOClient client, SyncKey data, AckRequest ackSender) {
         client.set(Cons.USER_ID, data.getUserId());
-        UserId2SessionMapper.INSTANCE.set(data.getUserId(), client.getSessionId());
+        server.getPipelineFactory().getUserMapper().set(data.getUserId(), client.getSessionId());
     }
 }

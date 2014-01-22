@@ -6,7 +6,6 @@ import com.corundumstudio.socketio.SocketIONamespace;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.github.onlysavior.chat.dataobject.ChatObject;
-import com.github.onlysavior.chat.store.UserId2SessionMapper;
 
 import java.util.UUID;
 
@@ -23,7 +22,7 @@ public class ChatDataLinstener implements DataListener<ChatObject> {
     @Override
     public void onData(SocketIOClient client, ChatObject data, AckRequest ackSender) {
         String recevier = data.getToUserId();
-        UUID recevierSession = UserId2SessionMapper.INSTANCE.get(recevier);
+        UUID recevierSession = server.getPipelineFactory().getUserMapper().get(recevier);
         SocketIONamespace ns = client.getNamespace();
         ns.getSinglecastOperations().sendJsonObject(data, recevierSession);
     }

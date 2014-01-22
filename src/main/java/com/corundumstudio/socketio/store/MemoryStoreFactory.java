@@ -19,10 +19,15 @@ import java.util.UUID;
 
 import com.corundumstudio.socketio.store.pubsub.BaseStoreFactory;
 import com.corundumstudio.socketio.store.pubsub.PubSubStore;
+import com.github.onlysavior.chat.store.UserId2SessionMapper;
 
 public class MemoryStoreFactory extends BaseStoreFactory {
 
     private final MemoryPubSubStore pubSubMemoryStore = new MemoryPubSubStore();
+
+    public MemoryStoreFactory(UserId2SessionMapper userId2SessionMapper) {
+        super(userId2SessionMapper);
+    }
 
     @Override
     public Store create(UUID sessionId) {

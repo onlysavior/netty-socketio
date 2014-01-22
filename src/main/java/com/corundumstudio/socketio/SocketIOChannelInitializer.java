@@ -15,6 +15,8 @@
  */
 package com.corundumstudio.socketio;
 
+import com.corundumstudio.socketio.store.MemoryStoreFactory;
+import com.github.onlysavior.chat.store.UserId2SessionMapper;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -96,8 +98,9 @@ public class SocketIOChannelInitializer extends ChannelInitializer<Channel> impl
     private HeartbeatHandler heartbeatHandler;
     private SSLContext sslContext;
     private Configuration configuration;
+    private UserId2SessionMapper userMapper;
 
-    public void start(Configuration configuration, final NamespacesHub namespacesHub) {
+    public void init(Configuration configuration, final NamespacesHub namespacesHub) {
         this.configuration = configuration;
         scheduler = new CancelableScheduler(configuration.getHeartbeatThreadPoolSize());
 
@@ -107,7 +110,18 @@ public class SocketIOChannelInitializer extends ChannelInitializer<Channel> impl
         Encoder encoder = new Encoder(configuration, jsonSupport);
         Decoder decoder = new Decoder(jsonSupport, ackManager);
 
-        heartbeatHandler = new HeartbeatHandler(configuration, scheduler);
+        userMapper = new UserId2SessionMapper(configuration);
+        StoreFactory storeFactory;
+
+        if(configuration.isUseMemoryStoreFactory()) {
+            storeFactory = new MemoryStoreFactory(userMapper);
+        } else {
+            storeFactory = configuration.getStoreFactory();
+        }
+
+        configuration.setStoreFactory(storeFactory);
+        namespacesHub.setStoreFactory(storeFactory);
+        heartbeatHandler = new HeartbeatHandler(configuration, scheduler, userMapper);
         PacketListener packetListener = new PacketListener(heartbeatHandler, ackManager, namespacesHub);
 
         String connectPath = configuration.getContext() + "/" + protocol + "/";
@@ -215,4 +229,7 @@ public class SocketIOChannelInitializer extends ChannelInitializer<Channel> impl
         scheduler.shutdown();
     }
 
+    public UserId2SessionMapper getUserMapper() {
+        return userMapper;
+    }
 }

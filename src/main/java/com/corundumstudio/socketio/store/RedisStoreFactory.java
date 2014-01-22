@@ -17,6 +17,7 @@ package com.corundumstudio.socketio.store;
 
 import java.util.UUID;
 
+import com.github.onlysavior.chat.store.UserId2SessionMapper;
 import redis.clients.jedis.Jedis;
 
 import com.corundumstudio.socketio.handler.AuthorizeHandler;
@@ -34,10 +35,13 @@ public class RedisStoreFactory extends BaseStoreFactory {
 
     private RedisPubSubStore pubSubRedisStore;
 
-    public RedisStoreFactory() {
+    public RedisStoreFactory(UserId2SessionMapper userId2SessionMapper) {
+        super(userId2SessionMapper);
     }
 
-    public RedisStoreFactory(Jedis redisClient, Jedis redisPub, Jedis redisSub) {
+    public RedisStoreFactory(Jedis redisClient, Jedis redisPub, Jedis redisSub,
+                             UserId2SessionMapper userId2SessionMapper) {
+        super(userId2SessionMapper);
         this.redisClient = redisClient;
         this.redisPub = redisPub;
         this.redisSub = redisSub;

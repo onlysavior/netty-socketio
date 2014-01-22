@@ -29,10 +29,17 @@ public class NamespacesHub {
 
     private final ConcurrentMap<String, Namespace> namespaces = new ConcurrentHashMap<String, Namespace>();
     private final JsonSupport jsonSupport;
-    private final StoreFactory storeFactory;
+    private StoreFactory storeFactory;
 
-    public NamespacesHub(JsonSupport jsonSupport, StoreFactory storeFactory) {
+    public NamespacesHub(JsonSupport jsonSupport) {
         this.jsonSupport = jsonSupport;
+    }
+
+    public StoreFactory getStoreFactory() {
+        return storeFactory;
+    }
+
+    public void setStoreFactory(StoreFactory storeFactory) {
         this.storeFactory = storeFactory;
     }
 

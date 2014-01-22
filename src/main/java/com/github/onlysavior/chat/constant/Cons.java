@@ -5,4 +5,5 @@ package com.github.onlysavior.chat.constant;
  */
 public class Cons {
     public static final String USER_ID = "userId";
+    public static final long TIME_OUT = 300; //seconds
 }

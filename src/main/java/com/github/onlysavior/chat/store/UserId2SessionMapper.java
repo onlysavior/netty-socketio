@@ -1,24 +1,36 @@
 package com.github.onlysavior.chat.store;
 
+import com.corundumstudio.socketio.Configuration;
+
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by yanye.lj on 14-1-21.
  */
 public class UserId2SessionMapper {
-    //TODO redis & LRU
-    private final ConcurrentHashMap<String, UUID> userId2UUID = new ConcurrentHashMap<String, UUID>();
-    public static final UserId2SessionMapper INSTANCE = new UserId2SessionMapper();
+    private LoginUserCache cache;
 
-    private UserId2SessionMapper() {
+    public UserId2SessionMapper(Configuration config) {
+        if (config.isUseMemoryStoreFactory()) {
+            cache = new MemoryLoginUserCache();
+        } else {
+            cache = new RedisLoginUserCache(config.getRedisHost(), config.getPort());
+        }
     }
 
     public void set(String key, UUID id) {
-        userId2UUID.put(key, id);
+        cache.set(key, id);
     }
 
     public UUID get(String key) {
-        return userId2UUID.get(key);
+        return cache.get(key);
+    }
+
+    public void handleDisconnect(UUID uuid) {
+        cache.handleDisconnect(uuid);
+    }
+
+    public void renew(UUID uuid) {
+        cache.renew(uuid);
     }
 }

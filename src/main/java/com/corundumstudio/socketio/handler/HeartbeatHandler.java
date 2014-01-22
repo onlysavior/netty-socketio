@@ -17,6 +17,7 @@ package com.corundumstudio.socketio.handler;
 
 import java.util.concurrent.TimeUnit;
 
+import com.github.onlysavior.chat.store.UserId2SessionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +36,13 @@ public class HeartbeatHandler implements Disconnectable {
 
     private final CancelableScheduler scheduler;
     private final Configuration configuration;
+    private UserId2SessionMapper userId2SessionMapper;
 
-    public HeartbeatHandler(Configuration configuration, CancelableScheduler scheduler) {
+    public HeartbeatHandler(Configuration configuration, CancelableScheduler scheduler,
+                            UserId2SessionMapper mapper) {
         this.configuration = configuration;
         this.scheduler = scheduler;
+        this.userId2SessionMapper = mapper;
     }
 
     public void onHeartbeat(final MainBaseClient client) {
@@ -49,6 +53,7 @@ public class HeartbeatHandler implements Disconnectable {
         final SchedulerKey key = new SchedulerKey(Type.HEARBEAT_TIMEOUT, client.getSessionId());
         // cancel heartbeat check because the client answered
         scheduler.cancel(key);
+        userId2SessionMapper.renew(client.getSessionId());
         scheduler.schedule(new Runnable() {
             public void run() {
                 client.send(new Packet(PacketType.HEARTBEAT));

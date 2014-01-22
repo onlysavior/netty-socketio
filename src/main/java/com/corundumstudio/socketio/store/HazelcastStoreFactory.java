@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import com.corundumstudio.socketio.store.pubsub.BaseStoreFactory;
 import com.corundumstudio.socketio.store.pubsub.PubSubStore;
+import com.github.onlysavior.chat.store.UserId2SessionMapper;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -32,17 +33,16 @@ public class HazelcastStoreFactory extends BaseStoreFactory {
     private final HazelcastInstance hazelcastPub;
     private final HazelcastInstance hazelcastSub;
 
-    public HazelcastStoreFactory() {
-        this(HazelcastClient.newHazelcastClient());
-    }
-
-    public HazelcastStoreFactory(HazelcastInstance instance) {
+    public HazelcastStoreFactory(HazelcastInstance instance, UserId2SessionMapper userId2SessionMapper) {
+        super(userId2SessionMapper);
         hazelcastClient = instance;
         hazelcastPub = instance;
         hazelcastSub = instance;
     }
 
-    public HazelcastStoreFactory(HazelcastInstance hazelcastClient, HazelcastInstance hazelcastPub, HazelcastInstance hazelcastSub) {
+    public HazelcastStoreFactory(HazelcastInstance hazelcastClient, HazelcastInstance hazelcastPub,
+                                 HazelcastInstance hazelcastSub, UserId2SessionMapper userId2SessionMapper) {
+        super(userId2SessionMapper);
         this.hazelcastClient = hazelcastClient;
         this.hazelcastPub = hazelcastPub;
         this.hazelcastSub = hazelcastSub;

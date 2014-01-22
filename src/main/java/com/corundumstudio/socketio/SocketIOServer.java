@@ -46,7 +46,7 @@ public class SocketIOServer implements ClientListeners {
     private final Configuration configuration;
 
     private final NamespacesHub namespacesHub;
-    private final SocketIONamespace mainNamespace;
+    private SocketIONamespace mainNamespace;
 
     private SocketIOChannelInitializer pipelineFactory = new SocketIOChannelInitializer();
 
@@ -56,14 +56,15 @@ public class SocketIOServer implements ClientListeners {
     public SocketIOServer(Configuration configuration) {
         this.configuration = configuration;
         this.configCopy = new Configuration(configuration);
-        namespacesHub = new NamespacesHub(configCopy.getJsonSupport(), configCopy.getStoreFactory());
+        namespacesHub = new NamespacesHub(configCopy.getJsonSupport());
+        pipelineFactory.init(configCopy, namespacesHub);
         mainNamespace = addNamespace(Namespace.DEFAULT_NAME);
     }
 
     public void setPipelineFactory(SocketIOChannelInitializer pipelineFactory) {
         this.pipelineFactory = pipelineFactory;
     }
-
+    //TODO to refact pipeline
     public SocketIOChannelInitializer getPipelineFactory() {
         return pipelineFactory;
     }
@@ -103,7 +104,6 @@ public class SocketIOServer implements ClientListeners {
     public void start() {
         initGroups();
 
-        pipelineFactory.start(configCopy, namespacesHub);
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
             .option(ChannelOption.TCP_NODELAY, true)
